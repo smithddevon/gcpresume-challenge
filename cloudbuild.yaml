@@ -1,0 +1,44 @@
+steps:
+  - name: 'gcr.io/cloud-builders/git'
+    args: ['clone', 'https://github.com/smithddevon/gcp-resume-challenge', 'cd gcp-resume-challenge']
+steps:
+  # Step 1: Clone the repository from GitHub
+  - name: 'gcr.io/cloud-builders/git'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        git clone https://github.com/smithddevon/gcp-resume-challenge
+        cd gcp-resume-challenge
+
+  # Step 2: Install dependencies (if needed)
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        pip install -r requirements.txt
+
+  # Step 3: Deploy Cloud Function using the source from the repo
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args:
+      - 'functions'
+      - 'deploy'
+      - 'get_resume'
+      - '--runtime'
+      - 'python39'
+      - '--trigger-http'
+      - '--entry-point'
+      - 'get_resume'
+      - '--region'
+      - 'us-east4'
+      - '--source'
+      - '.'
+      - '--memory'
+      - '256MB'
+      - '--set-env-vars'
+      - 'FIRESTORE_PROJECT=gcp-resume-challenge-083124'
+      - '--service-account'
+      - 'gcp-resume-challenge-083124@appspot.gserviceaccount.com'
+
+timeout: 1200s
