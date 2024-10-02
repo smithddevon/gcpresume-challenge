@@ -1,20 +1,18 @@
 steps:
   # Step 1: Clone the repository from GitHub
   - name: 'gcr.io/cloud-builders/git'
-    entrypoint: 'bash'
     args:
-      - '-c'
-      - |
-        git clone https://github.com/smithddevon/gcpresume-challenge .
-        cd gcpresume-challenge
-        
+      - 'clone'
+      - 'https://github.com/smithddevon/gcp-resume-challenge'
+      - '/workspace'
+
   # Step 2: Install dependencies (if needed)
   - name: 'gcr.io/cloud-builders/gcloud'
     entrypoint: 'bash'
     args:
       - '-c'
       - |
-        pip install -r requirements.txt
+        pip install -r /workspace/requirements.txt
 
   # Step 3: Deploy Cloud Function using the source from the repo
   - name: 'gcr.io/cloud-builders/gcloud'
@@ -28,17 +26,17 @@ steps:
       - '--entry-point'
       - 'get_resume'
       - '--region'
-      - 'us-east4'
+      - 'us-east4'  # Ensure this region is allowed for your project
       - '--source'
-      - '.'  # This indicates the current directory after cloning
+      - '/workspace'  # Specify the source directory correctly
       - '--memory'
       - '256MB'
       - '--set-env-vars'
       - 'FIRESTORE_PROJECT=gcp-resume-challenge-083124'
       - '--service-account'
       - 'gcp-resume-challenge-083124@appspot.gserviceaccount.com'
-# Set logging options
+
 options:
-  logging: CLOUD_LOGGING_ONLY 
+  logging: CLOUD_LOGGING_ONLY  # Ensure logs are sent to Cloud Logging
 
 timeout: 1200s
