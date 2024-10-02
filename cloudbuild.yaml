@@ -36,5 +36,8 @@ steps:
       - 'FIRESTORE_PROJECT=gcp-resume-challenge-083124'
       - '--service-account'
       - 'gcp-resume-challenge-083124@appspot.gserviceaccount.com'
+# Set logging options
+options:
+  logging: CLOUD_LOGGING_ONLY 
 
 timeout: 1200s
