@@ -1,16 +1,12 @@
 steps:
-  - name: 'gcr.io/cloud-builders/git'
-    args: ['clone', 'https://github.com/smithddevon/gcp-resume-challenge', 'cd gcp-resume-challenge']
-steps:
   # Step 1: Clone the repository from GitHub
   - name: 'gcr.io/cloud-builders/git'
     entrypoint: 'bash'
     args:
       - '-c'
       - |
-        git clone https://github.com/smithddevon/gcp-resume-challenge
-        cd gcp-resume-challenge
-
+        git clone https://github.com/smithddevon/gcpresume-challenge .
+        
   # Step 2: Install dependencies (if needed)
   - name: 'gcr.io/cloud-builders/gcloud'
     entrypoint: 'bash'
@@ -33,7 +29,7 @@ steps:
       - '--region'
       - 'us-east4'
       - '--source'
-      - '.'
+      - '.'  # This indicates the current directory after cloning
       - '--memory'
       - '256MB'
       - '--set-env-vars'
