@@ -6,6 +6,7 @@ steps:
       - '-c'
       - |
         git clone https://github.com/smithddevon/gcpresume-challenge .
+        cd gcpresume-challenge
         
   # Step 2: Install dependencies (if needed)
   - name: 'gcr.io/cloud-builders/gcloud'
