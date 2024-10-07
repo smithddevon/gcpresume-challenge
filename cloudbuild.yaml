@@ -1,12 +1,5 @@
 steps:
-  # Step 1: Clone the repository from GitHub
-  - name: 'gcr.io/cloud-builders/git'
-    args:
-      - 'clone'
-      - 'https://github.com/smithddevon/gcp-resume-challenge'
-      - '/workspace'
-
-  # Step 2: Install dependencies (if needed)
+  # Step 1: Install dependencies (if needed)
   - name: 'gcr.io/cloud-builders/gcloud'
     entrypoint: 'bash'
     args:
@@ -14,7 +7,7 @@ steps:
       - |
         pip install -r /workspace/requirements.txt
 
-  # Step 3: Deploy Cloud Function using the source from the repo
+  # Step 2: Deploy Cloud Function using the source from the repo
   - name: 'gcr.io/cloud-builders/gcloud'
     args:
       - 'functions'
