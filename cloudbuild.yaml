@@ -1,11 +1,11 @@
 steps:
   # Step 1: Install dependencies (if needed)
-  - name: 'gcr.io/cloud-builders/gcloud'
+  - name: 'gcr.io/cloud-builders/python'
     entrypoint: 'bash'
     args:
       - '-c'
       - |
-        pip install -r /workspace/requirements.txt
+        pip install -r requirements.txt
 
   # Step 2: Deploy Cloud Function using the source from the repo
   - name: 'gcr.io/cloud-builders/gcloud'
