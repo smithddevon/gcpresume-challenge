@@ -1,6 +1,6 @@
 steps:
   # Step 1: Install dependencies (if needed)
-  - name: 'gcr.io/cloud-builders/python:3.9'
+  - name: 'docker.io/python'
     entrypoint: 'bash'
     args:
       - '-c'
