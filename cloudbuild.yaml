@@ -1,35 +1,36 @@
 steps:
-  # Step 1: Install dependencies (if needed)
-  - name: 'docker.io/python'
-    entrypoint: 'bash'
+  # Step 1: Install Terraform (use a Docker image with Terraform pre-installed)
+  - name: 'hashicorp/terraform:light'
+    id: 'Terraform Init'
+    entrypoint: '/bin/sh'
     args:
       - '-c'
       - |
-        pip install -r requirements.txt
+        terraform init
 
-  # Step 2: Deploy Cloud Function using the source from the repo
-  - name: 'gcr.io/cloud-builders/gcloud'
+  # Step 2: Terraform plan
+  - name: 'hashicorp/terraform:light'
+    id: 'Terraform Plan'
+    entrypoint: '/bin/sh'
     args:
-      - 'functions'
-      - 'deploy'
-      - 'get_resume'
-      - '--runtime'
-      - 'python39'
-      - '--trigger-http'
-      - '--entry-point'
-      - 'get_resume'
-      - '--region'
-      - 'us-east4'  # Ensure this region is allowed for your project
-      - '--source'
-      - '/workspace'  # Specify the source directory correctly
-      - '--memory'
-      - '256MB'
-      - '--set-env-vars'
-      - 'FIRESTORE_PROJECT=gcp-resume-challenge-083124'
-      - '--service-account'
-      - 'gcp-resume-challenge-083124@appspot.gserviceaccount.com'
+      - '-c'
+      - |
+        terraform plan -out=tfplan
 
-options:
-  logging: CLOUD_LOGGING_ONLY  # Ensure logs are sent to Cloud Logging
+  # Step 3: Apply Terraform (automated with -auto-approve flag)
+  - name: 'hashicorp/terraform:light'
+    id: 'Terraform Apply'
+    entrypoint: '/bin/sh'
+    args:
+      - '-c'
+      - |
+        terraform apply -auto-approve tfplan
 
-timeout: 1200s
+  # Step 4: Deploy Cloud Function (if required, assuming this step is automated separately)
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: 'Deploy Cloud Function'
+    args: ['functions', 'deploy', 'get_resume', '--runtime', 'python39', '--trigger-http', '--allow-unauthenticated', '--entry-point', 'get_resume']
+
+  # Step 5: Additional steps as needed (optional)
+
+timeout: '1200s'  # Increase the timeout as Terraform apply might take time
