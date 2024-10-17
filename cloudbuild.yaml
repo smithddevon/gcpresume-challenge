@@ -34,3 +34,6 @@ steps:
   # Step 5: Additional steps as needed (optional)
 
 timeout: '1200s'  # Increase the timeout as Terraform apply might take time
+
+options:
+  logging: CLOUD_LOGGING_ONLY
