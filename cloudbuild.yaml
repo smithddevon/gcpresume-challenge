@@ -6,7 +6,7 @@ steps:
     args:
       - '-c'
       - |
-        terraform init
+        terraform init -v
 
   # Step 2: Terraform plan
   - name: 'hashicorp/terraform:light'
@@ -15,7 +15,7 @@ steps:
     args:
       - '-c'
       - |
-        terraform plan -out=tfplan
+        terraform plan -out=tfplan -v
 
   # Step 3: Apply Terraform (automated with -auto-approve flag)
   - name: 'hashicorp/terraform:light'
@@ -24,7 +24,7 @@ steps:
     args:
       - '-c'
       - |
-        terraform apply -auto-approve tfplan
+        terraform apply -auto-approve tfplan -v
 
   # Step 4: Deploy Cloud Function (if required, assuming this step is automated separately)
   - name: 'gcr.io/cloud-builders/gcloud'
