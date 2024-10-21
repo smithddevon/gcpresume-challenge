@@ -26,12 +26,27 @@ steps:
       - |
         terraform apply -auto-approve tfplan -v
 
-  # Step 4: Deploy Cloud Function (if required, assuming this step is automated separately)
+  # Step 4: Deploy Cloud Function for fetching resume from Firestore
   - name: 'gcr.io/cloud-builders/gcloud'
-    id: 'Deploy Cloud Function'
-    args: ['functions', 'deploy', 'get_resume', '--runtime', 'python39', '--trigger-http', '--allow-unauthenticated', '--entry-point', 'get_resume']
+    id: 'Deploy Get Resume Cloud Function'
+    args: [
+      'functions', 'deploy', 'get_resume', 
+      '--runtime', 'python39', 
+      '--trigger-http', 
+      '--allow-unauthenticated', 
+      '--entry-point', 'get_resume'
+    ]
 
-  # Step 5: Additional steps as needed (optional)
+  # Step 5: Deploy Cloud Function for updating Firestore when resume.json changes
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: 'Deploy Update Firestore Cloud Function'
+    args: [
+      'functions', 'deploy', 'update_resume_firestore', 
+      '--runtime', 'python39', 
+      '--trigger-event', 'google.storage.object.finalize', 
+      '--trigger-resource', 'gcp-resume-bucket-083124',
+      '--entry-point', 'upload_to_firestore'
+    ]
 
 timeout: '1200s'  # Increase the timeout as Terraform apply might take time
 

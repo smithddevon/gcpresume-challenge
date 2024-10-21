@@ -1,16 +1,14 @@
 import json
 from flask import jsonify
 from google.cloud import firestore, storage
+import logging
 
 # Initialize Firestore and Cloud Storage clients
 db = firestore.Client()
 storage_client = storage.Client()
 
-
 def upload_to_firestore(event, context):
-    """Triggered by a change to a Cloud Storage bucket.
-    Updates Firestore with the content of resume.json.
-    """
+    """Triggered by a change to a Cloud Storage bucket. Updates Firestore with the content of resume.json."""
     try:
         # Get bucket and file information from the event
         bucket_name = event['bucket']
@@ -28,13 +26,13 @@ def upload_to_firestore(event, context):
             # Update Firestore with the data from the JSON file
             doc_ref = db.collection('resumes').document('1')  # Use the desired document ID
             doc_ref.set(data)
-            print("Firestore updated successfully.")
+            logging.info("Firestore updated successfully.")
         else:
-            print(f"Ignoring file {file_name}, not resume.json")
+            logging.info(f"Ignoring file {file_name}, not resume.json")
     
     except Exception as e:
-        print(f"Error updating Firestore: {e}")
-
+        logging.error(f"Error updating Firestore: {e}")
+        raise
 
 def get_resume(request):
     """Retrieves the resume data from Firestore and returns it as a JSON response."""

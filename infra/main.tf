@@ -5,7 +5,7 @@ provider "google" {
 
 # Cloud Storage bucket for resume.json
 resource "google_storage_bucket" "resume_bucket" {
-  name     = "gcp-resume-bucket-083124"  # Your bucket for storing resume.json
+  name     = "gcp-resume-bucket-083124"
   location = "us-east4"
 }
 
@@ -13,9 +13,8 @@ resource "google_storage_bucket" "resume_bucket" {
 resource "google_cloudfunctions_function" "resume_function" {
   name                  = "get_resume"
   runtime               = "python39"
-  entry_point           = "get_resume"  # This function returns data from Firestore
+  entry_point           = "get_resume"  # Function to return data from Firestore
 
-  # Cloud Build will handle deployment
   source_archive_bucket = google_storage_bucket.resume_bucket.name
   source_archive_object = "source.zip"   # This will be updated by Cloud Build
 
@@ -33,9 +32,8 @@ resource "google_cloudfunctions_function" "resume_function" {
 resource "google_cloudfunctions_function" "update_firestore_function" {
   name                  = "update_resume_firestore"
   runtime               = "python39"
-  entry_point           = "upload_to_firestore"  # Python function that processes the file
+  entry_point           = "upload_to_firestore"  # Function to process the file and update Firestore
 
-  # Cloud Build will handle deployment
   source_archive_bucket = google_storage_bucket.resume_bucket.name
   source_archive_object = "source.zip"   # This will be updated by Cloud Build
 
@@ -43,9 +41,6 @@ resource "google_cloudfunctions_function" "update_firestore_function" {
   event_trigger {
     event_type = "google.storage.object.finalize"  # Triggers on file uploads/changes
     resource   = google_storage_bucket.resume_bucket.name
-    failure_policy {
-      retry = true  # Optional: retry on failure
-    }
   }
 
   available_memory_mb = 256
@@ -58,26 +53,24 @@ resource "google_cloudfunctions_function" "update_firestore_function" {
 }
 
 # IAM policy to allow invocations of the Cloud Functions
-resource "google_project_iam_policy" "policy" {
+resource "google_project_iam_member" "allow_unauthenticated" {
   project = "gcp-resume-challenge-083124"
+  role    = "roles/cloudfunctions.invoker"
+  member  = "allUsers"  # Allow unauthenticated access for the get_resume function
+}
 
-  policy_data = jsonencode({
-    "bindings" = [
-      {
-        "role"    = "roles/cloudfunctions.invoker",
-        "members" = [
-          "allUsers"
-        ]
-      }
-    ]
-  })
+# Firestore setup (ensure Firestore is in native mode, manually set up)
+# Uncomment if Firestore needs to be managed via Terraform
+resource "google_firestore_database" "firestore_db" {
+  name   = "(default)"
+  project = "gcp-resume-challenge-083124"
+  location_id = "us-east4"
 }
 
 # Cloud Build Trigger for automated deployment from GitHub
 resource "google_cloudbuild_trigger" "github_trigger" {
   name = "gcp-resume-trigger"
 
-  # GitHub repository details
   github {
     owner = "smithddevon"
     name  = "gcpresume-challenge"
@@ -86,10 +79,8 @@ resource "google_cloudbuild_trigger" "github_trigger" {
     }
   }
 
-  # The file that defines the build steps
-  filename = "cloudbuild.yaml"
+  filename = "cloudbuild.yaml"  # The file that defines the build steps
 
-  # Include the service account for Cloud Build
   service_account = "gcp-resume-challenge-083124@appspot.gserviceaccount.com"
 }
 
@@ -98,3 +89,4 @@ output "cloud_function_url" {
   description = "The HTTP endpoint for the deployed Cloud Function"
   value       = google_cloudfunctions_function.resume_function.https_trigger_url
 }
+
