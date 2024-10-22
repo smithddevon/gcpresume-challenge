@@ -46,7 +46,7 @@ steps:
       '--trigger-event', 'google.storage.object.finalize', 
       '--trigger-resource', 'gcp-resume-bucket-083124',
       '--entry-point', 'upload_to_firestore',
-      '-v'
+      '--verbose=debug'
     ]
 
 timeout: '1200s'  # Increase the timeout as Terraform apply might take time
