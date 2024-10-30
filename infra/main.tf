@@ -40,7 +40,7 @@ resource "google_cloudfunctions_function" "update_firestore_function" {
   # Event trigger: listen for changes to objects in the storage bucket
   event_trigger {
     event_type = "google.storage.object.finalize"  # Triggers on file uploads/changes
-    resource   = google_storage_bucket.resume_bucket.name
+    resource   = "projects/_/buckets/${google_storage_bucket.resume_bucket.name}"
   }
 
   available_memory_mb = 256
