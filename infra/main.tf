@@ -49,7 +49,7 @@ resource "google_cloudfunctions_function" "update_firestore_function" {
     FIRESTORE_PROJECT = "gcp-resume-challenge-083124"
   }
 
-  service_account_email = "gcp-resume-challenge-083124@appspot.gserviceaccount.com"
+  service_account_email = "cloud-storage-service@gcp-resume-challenge-083124.iam.gserviceaccount.com"
 }
 
 # IAM policy to allow invocations of the Cloud Functions
