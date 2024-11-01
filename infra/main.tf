@@ -6,7 +6,7 @@ provider "google" {
 # Cloud Storage bucket for resume.json
 resource "google_storage_bucket" "resume_bucket" {
   name     = "gcp-resume-bucket-083124"
-  location = "us-east4"
+  location = "us-central1"
 }
 
 # Cloud Function to retrieve resume data from Firestore (HTTP-triggered)
