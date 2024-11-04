@@ -28,7 +28,12 @@ resource "google_cloudfunctions_function" "resume_function" {
   service_account_email = "gcp-resume-challenge-083124@appspot.gserviceaccount.com"
 }
 
-# Cloud Function to update Firestore when resume.json is modified in Cloud Storage
+# Pub/Sub topic for Eventarc to use as an intermediary
+resource "google_pubsub_topic" "resume_update_topic" {
+  name = "resume-update-topic"
+}
+
+# Cloud Function to update Firestore when resume.json is modified in Cloud Storage, using Eventarc
 resource "google_cloudfunctions_function" "update_firestore_function" {
   name                  = "update_resume_firestore"
   runtime               = "python39"
@@ -36,12 +41,6 @@ resource "google_cloudfunctions_function" "update_firestore_function" {
 
   source_archive_bucket = google_storage_bucket.resume_bucket.name
   source_archive_object = "source.zip"   # This will be updated by Cloud Build
-
-  # Event trigger: listen for changes to objects in the storage bucket
-  event_trigger {
-    event_type = "google.storage.object.finalize"  # Triggers on file uploads/changes
-    resource   = "projects/_/buckets/${google_storage_bucket.resume_bucket.name}"
-  }
 
   available_memory_mb = 256
 
@@ -52,41 +51,35 @@ resource "google_cloudfunctions_function" "update_firestore_function" {
   service_account_email = "cloud-storage-service@gcp-resume-challenge-083124.iam.gserviceaccount.com"
 }
 
-# IAM policy to allow invocations of the Cloud Functions
-resource "google_project_iam_member" "allow_unauthenticated" {
-  project = "gcp-resume-challenge-083124"
-  role    = "roles/cloudfunctions.invoker"
-  member  = "allUsers"  # Allow unauthenticated access for the get_resume function
-}
-
-# Firestore setup (ensure Firestore is in native mode, manually set up)
-# Uncomment if Firestore needs to be managed via Terraform
-resource "google_firestore_database" "firestore_db" {
-  name   = "(default)"
-  project = "gcp-resume-challenge-083124"
-  location_id = "us-east4"
-}
-
-# Cloud Build Trigger for automated deployment from GitHub
-resource "google_cloudbuild_trigger" "github_trigger" {
-  name = "gcp-resume-trigger"
-
-  github {
-    owner = "smithddevon"
-    name  = "gcpresume-challenge"
-    push {
-      branch = "^master$"  # Adjust based on the branch you use
-    }
+# Eventarc trigger to connect Cloud Storage bucket events to the Cloud Function
+resource "google_eventarc_trigger" "resume_update_eventarc_trigger" {
+  name     = "resume-update-eventarc-trigger"
+  location = "us-central1"
+  
+  # Eventarc trigger for Cloud Storage object finalization (i.e., when an object is uploaded or changed)
+  event_filters {
+    attribute = "type"
+    value     = "google.cloud.storage.object.v1.finalized"
   }
 
-  filename = "cloudbuild.yaml"  # The file that defines the build steps
+  event_filters {
+    attribute = "bucket"
+    value     = google_storage_bucket.resume_bucket.name
+  }
 
-  service_account = "gcp-resume-challenge-083124@appspot.gserviceaccount.com"
+  transport {
+    pubsub_topic = google_pubsub_topic.resume_update_topic.id
+  }
+
+  destination {
+    cloud_function = google_cloudfunctions_function.update_firestore_function.id
+  }
 }
 
-# Output the Cloud Function URL for HTTP-triggered function
-output "cloud_function_url" {
-  description = "The HTTP endpoint for the deployed Cloud Function"
-  value       = google_cloudfunctions_function.resume_function.https_trigger_url
+# IAM Permissions for the Eventarc service account to access Pub/Sub
+resource "google_project_iam_member" "eventarc_pubsub_publisher" {
+  project = "gcp-resume-challenge-083124"
+  role    = "roles/pubsub.publisher"
+  member  = "serviceAccount:service-772953776671@gcp-sa-eventarc.iam.gserviceaccount.com"  # Eventarc service account
 }
 
