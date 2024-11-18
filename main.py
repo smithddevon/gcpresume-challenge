@@ -7,7 +7,7 @@ import logging
 db = firestore.Client()
 storage_client = storage.Client()
 
-def upload_to_firestore(event, context):
+def update_resume_firestore(event, context):
     """Triggered by a change to a Cloud Storage bucket. Updates Firestore with the content of resume.json."""
     try:
         # Get bucket and file information from the event
