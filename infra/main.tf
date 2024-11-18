@@ -28,7 +28,7 @@ resource "google_cloudfunctions_function" "resume_function" {
 resource "google_cloudfunctions_function" "update_firestore_function" {
   name                  = "update_resume_firestore"
   runtime               = "python39"
-  entry_point           = "update_resume_firestore"
+  entry_point           = "upload_to_firestore"
   source_archive_bucket = google_storage_bucket.resume_bucket.name
   source_archive_object = google_storage_bucket_object.source_archive.name
   available_memory_mb = 256
