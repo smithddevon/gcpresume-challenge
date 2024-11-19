@@ -43,10 +43,15 @@ resource "google_cloudfunctions_function" "update_firestore_function" {
   }
 }
 
+# Create firestore collection
+resource "google_firestore_collection" "resumes" {
+  collection_id = "resumes"
+}
+
 # Firestore document
 resource "google_firestore_document" "resume_document" {
-  collection  = "(default)"
-  document_id = "resume-db"
+  collection  = google_firestore_collection.resumes.collection_id
+  document_id = "resume"
   fields      = {
     title = {
       string_value = "Resume Data"
