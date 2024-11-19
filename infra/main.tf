@@ -43,6 +43,14 @@ resource "google_cloudfunctions_function" "update_firestore_function" {
   }
 }
 
+# Create firestore db
+resource "google_firestore_database" "default_db" {
+  name     = "(default)"
+  project  = "gcp-resume-challenge-083124"
+  location = "us-central1"
+  type     = "FIRESTORE_NATIVE"
+}
+
 # Create firestore collection
 resource "google_firestore_collection" "resumes" {
   collection_id = "resumes"
