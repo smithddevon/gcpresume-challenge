@@ -1,3 +1,5 @@
+serviceAccount: gcp-resume-challenge-083124@appspot.gserviceaccount.com
+
 steps:
   # Step 1: Install Terraform (use a Docker image with Terraform pre-installed)
   - name: 'hashicorp/terraform:light'
