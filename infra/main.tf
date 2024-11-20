@@ -44,12 +44,12 @@ resource "google_cloudfunctions_function" "update_firestore_function" {
 }
 
 # Create firestore db
-resource "google_firestore_database" "(default)" {
-  project     = "gcp-resume-challenge-083124"
-  name        = (default)
-  location_id = us-central1
-  type        = FIRESTORE_NATIVE
-}
+#resource "google_firestore_database" "(default)" {
+#  project     = "gcp-resume-challenge-083124"
+# name        = (default)
+#  location_id = us-central1
+#  type        = FIRESTORE_NATIVE
+# }
 
 # Firestore document (automatically creates the collection if not already created)
 # resource "google_firestore_document" "resume_document" {
