@@ -45,24 +45,22 @@ resource "google_cloudfunctions_function" "update_firestore_function" {
 
 # Create firestore db
 resource "google_firestore_database" "default_db" {
-  name     = "(default)"
-  project  = "gcp-resume-challenge-083124"
-  location = "us-central1"
-  type     = "FIRESTORE_NATIVE"
+  name        = "(default)"
+  project     = "gcp-resume-challenge-083124"
+  location_id = "us-central1"
+  type        = "FIRESTORE_NATIVE"
 }
 
-# Create firestore collection
-resource "google_firestore_collection" "resumes" {
-  collection_id = "resumes"
-}
-
-# Firestore document
+# Firestore document (automatically creates the collection if not already created)
 resource "google_firestore_document" "resume_document" {
-  collection  = google_firestore_collection.resumes.collection_id
-  document_id = "resume"
-  fields      = {
+  project     = "gcp-resume-challenge-083124"
+  database    = google_firestore_database.default_db.id
+  collection  = "resumes"  # This is where the collection "resumes" is created
+  document_id = "resume"   # Document ID for your resume data
+  fields = {
     title = {
       string_value = "Resume Data"
     }
+    // Add other fields as required from your resume.json file
   }
 }
