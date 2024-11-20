@@ -44,7 +44,7 @@ resource "google_cloudfunctions_function" "update_firestore_function" {
 }
 
 # Create firestore db
-resource "google_firestore_database" "default_db" {
+resource "google_firestore_database" "(default)" {
   project     = "gcp-resume-challenge-083124"
   name        = (default)
   location_id = us-central1
